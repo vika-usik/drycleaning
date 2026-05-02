@@ -14,7 +14,8 @@ class Service extends Model
     protected $fillable = [
         'name',
         'description',
-        'price'
+        'price',
+        'category_id'
     ];
 
     protected $casts = [

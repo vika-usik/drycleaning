@@ -7,27 +7,33 @@ use Illuminate\Http\Request;
 class ServiceController extends Controller
 {
     private $services = [
-        1 => "Чистка куртки",
-        2 => "Чистка пальта",
-        3 => "Чистка костюма",
-        4 => "Чистка сукні"
+        ['id' => 1, 'name' => "Чистка куртки", 'category_id' => 1],
+        ['id' => 2, 'name' => "Чистка пальта", 'category_id' => 1],
+        ['id' => 3, 'name' => "Чистка костюма", 'category_id' => 1],
+        ['id' => 4, 'name' => "Чистка сукні", 'category_id' => 2]
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('services', [
-            'services' => $this->services
-        ]);
+        $data = $this->services;
+
+        if ($request->has('category_id')) {
+            $data = array_filter($data, function ($service) use ($request) {
+                return $service['category_id'] == $request->category_id;
+            });
+        }
+
+        return response()->json(array_values($data));
     }
 
     public function show($id)
     {
-        if (!isset($this->services[$id])) {
-            abort(404);
+        $service = collect($this->services)->firstWhere('id', $id);
+
+        if (!$service) {
+            return response()->json(['message' => 'Not found'], 404);
         }
 
-        return view('service', [
-            'service' => $this->services[$id]
-        ]);
+        return response()->json($service);
     }
 }

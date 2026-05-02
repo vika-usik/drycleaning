@@ -8,10 +8,15 @@ use App\Models\Service;
 
 class ServiceController extends Controller
 {
-
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Service::all(), 200, [], JSON_UNESCAPED_UNICODE);
+        $query = Service::query();
+
+        if ($request->has('category_id') && $request->category_id != '') {
+            $query->where('category_id', $request->category_id);
+        }
+
+        return response()->json($query->get(), 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function show($id)
@@ -32,7 +37,8 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'price' => 'required|numeric|min:1',
-            'description' => 'nullable'
+            'description' => 'nullable',
+            'category_id' => 'required|exists:categories,id'
         ]);
 
         $service = Service::create($validated);
@@ -53,7 +59,8 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'price' => 'required|numeric|min:1',
-            'description' => 'nullable'
+            'description' => 'nullable',
+            'category_id' => 'required|exists:categories,id'
         ]);
 
         $service->update($validated);
